@@ -15,20 +15,28 @@ import { notifications } from "@mantine/notifications";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 const fetchItems = async (priority, purchased) => {
-  if (priority !== "") {
-    const response = await axios.get(
-      "http://localhost:8000/items?priority=" + priority
-    );
-    return response.data;
-  } else if (purchased !== "") {
-    const response = await axios.get(
-      "http://localhost:8000/items?purchased=" + purchased
-    );
-    return response.data;
-  } else {
-    const response = await axios.get("http://localhost:8000/items");
-    return response.data;
-  }
+  //   if (priority !== "") {
+  //     const response = await axios.get(
+  //       "http://localhost:8000/items?priority=" + priority
+  //     );
+  //     return response.data;
+  //   } else if (purchased !== "") {
+  //     const response = await axios.get(
+  //       "http://localhost:8000/items?purchased=" + purchased
+  //     );
+  //     return response.data;
+  //   } else {
+  //     const response = await axios.get("http://localhost:8000/items");
+  //     return response.data;
+  //   }
+  // };
+
+  const response = await axios.get(
+    "http://localhost:8000/items?" +
+      (priority !== "" ? "priority=" + priority : "") +
+      (purchased !== "" ? "&purchased=" + purchased : "")
+  );
+  return response.data;
 };
 
 const eidtItem = async (item_id = "") => {
@@ -59,8 +67,6 @@ function Items() {
     queryKey: ["items", priority, purchased],
     queryFn: () => fetchItems(priority, purchased),
   });
-
-  console.log(items);
 
   const memoryItems = queryClient.getQueryData(["items", "", ""]);
   const priorityOptions = useMemo(() => {
@@ -169,15 +175,18 @@ function Items() {
                         Edit
                       </Button>
                       <Button
+                        color="lime"
                         size="xs"
                         radius="50px"
+                        disabled={item.purchased}
                         onClick={() => {
                           updateMutation.mutate(item._id);
                         }}
                       >
-                        Purchased
+                        {item.purchased ? "Purchased" : "Mark as Purchased"}
                       </Button>
                       <Button
+                        color="red"
                         size="xs"
                         radius="50px"
                         onClick={() => {
